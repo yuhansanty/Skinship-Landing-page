@@ -261,7 +261,7 @@
     </div>
   </section>
 
-  <!-- Success Modal -->
+  
   <div id="successModal" class="success-modal">
     <div class="success-modal-content">
       <div class="success-icon">
@@ -284,16 +284,16 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   
-  <!-- Firebase -->
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script>
-    // Initialize EmailJS with your public key
+    
     (function(){
-      emailjs.init("05pESgFVX7W6C_9dz"); // Replace with your actual EmailJS public key
+      emailjs.init("05pESgFVX7W6C_9dz"); 
     })();
 
-    // Firebase Config
+    
     const firebaseConfig = {
       apiKey: "AIzaSyD2Yh7L4Wl9XRlOgxnzZyo8xxds6a02UJY",
       authDomain: "skinship-1ff4b.firebaseapp.com",
@@ -305,7 +305,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Initialize Flatpickr
+    
     flatpickr("#appointment", {
       enableTime: true,
       dateFormat: "F j, Y h:i K",
@@ -314,13 +314,13 @@
       maxTime: "20:00",
       disable: [
         function(date) {
-          // Disable Wednesdays (day 3 where 0=Sunday, 1=Monday, etc.)
+          
           return date.getDay() === 3;
         }
       ]
     });
 
-    // Load services dynamically from Firebase
+    
     async function loadServices() {
       const serviceSelect = document.getElementById("service");
       serviceSelect.innerHTML = `<option value="">Loading services...</option>`;
@@ -336,7 +336,7 @@
             const service = doc.data();
             const category = service.category || "Other";
             const name = service.name || "Unnamed Service";
-            // Add peso sign if price exists and doesn't already have it
+            
             let price = "";
             if (service.price) {
               const priceStr = service.price.toString();
@@ -345,7 +345,7 @@
                 : ` - ₱${priceStr}`;
             }
             
-            // Create new optgroup if category changed
+            
             if (category !== currentCategory) {
               if (optgroup) {
                 serviceSelect.appendChild(optgroup);
@@ -361,7 +361,7 @@
             optgroup.appendChild(option);
           });
           
-          // Append last optgroup
+          
           if (optgroup) {
             serviceSelect.appendChild(optgroup);
           }
@@ -374,7 +374,7 @@
       }
     }
 
-    // Load staff dynamically
+    
     async function loadStaff() {
       const staffSelect = document.getElementById("staff");
       staffSelect.innerHTML = `<option value="">Loading staff...</option>`;
@@ -395,16 +395,16 @@
       }
     }
     
-    // Load both services and staff
+    
     loadServices();
     loadStaff();
 
-    // Show success modal function
+    
     function showSuccessModal() {
       const modal = document.getElementById('successModal');
       modal.classList.add('show');
       
-      // Start countdown timer
+      
       let timeLeft = 30;
       const countdownElement = document.getElementById('countdown');
       
@@ -412,7 +412,7 @@
         timeLeft--;
         countdownElement.textContent = timeLeft;
         
-        // Add warning animation for last 5 seconds
+        
         if (timeLeft <= 5) {
           countdownElement.classList.add('warning');
         }
@@ -423,21 +423,21 @@
         }
       }, 1000);
       
-      // Clear countdown if user clicks the button
+      
       const backButton = document.querySelector('.success-btn');
       backButton.addEventListener('click', () => {
         clearInterval(countdownInterval);
       });
     }
 
-    // Close modal when clicking outside
+    
     document.getElementById('successModal').addEventListener('click', function(e) {
       if (e.target === this) {
         this.classList.remove('show');
       }
     });
 
-    // Close modal when pressing Escape key
+    
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         const modal = document.getElementById('successModal');
@@ -447,7 +447,7 @@
       }
     });
 
-    // Send email using EmailJS
+    
     async function sendEmail(appointmentData) {
       const templateParams = {
         customer_name: appointmentData.name,
@@ -468,11 +468,11 @@
         website_link: "#"
       };
 
-      console.log('Sending email with params:', templateParams); // Debug log
+      console.log('Sending email with params:', templateParams); 
 
       try {
         const response = await emailjs.send(
-          'service_ehjfcod',        // Replace with your EmailJS service ID
+          'service_ehjfcod',        
           'template_avbj0m7',
           templateParams
         );
@@ -483,7 +483,7 @@
         console.error('Error status:', error.status);
         console.error('Error text:', error.text);
         
-        // Show more helpful error message
+        
         if (error.status === 422) {
           console.error('EmailJS 422 Error: Check that your template variables match the templateParams keys');
         } else if (error.status === 400) {
@@ -493,7 +493,7 @@
       }
     }
 
-    // Handle form submit
+    
     document.querySelector(".contact-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -516,7 +516,7 @@
         return;
       }
 
-      // Validate Philippine mobile number
+      
       const phPhoneRegex = /^(?:\+639|09)\d{9}$/;
       if (!phPhoneRegex.test(phone)) {
         alert("Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX).");
@@ -525,7 +525,7 @@
         return;
       }
 
-      // Validate email domain
+      
       const allowedDomains = ['gmail.com', 'yahoo.com', 'yahoo.com.ph', 'hotmail.com', 'outlook.com', 'outlook.com.ph', 'live.com', 'msn.com', 'microsoft.com'];
       const emailDomain = email.split('@')[1]?.toLowerCase();
       if (!allowedDomains.includes(emailDomain)) {
@@ -535,7 +535,7 @@
         return;
       }
 
-      // Restrict email to specific providers
+      
       const allowedEmailRegex = /^[A-Za-z0-9._%+-]+@(gmail\.com|yahoo\.com(?:\.ph)?|hotmail\.com|outlook\.com(?:\.ph)?|live\.com|msn\.com|microsoft\.com)$/i;
       if (!allowedEmailRegex.test(email)) {
         alert("Please use a valid email from: gmail.com, yahoo.com(.ph), hotmail.com, outlook.com(.ph), live.com, msn.com, or microsoft.com.");
@@ -556,7 +556,7 @@
         hour12: true 
       });
 
-      // Appointment data
+      
       const appointmentData = {
         name: name,
         email: email,
@@ -568,7 +568,7 @@
         notes: notes
       };
 
-      // Save to localStorage for notifications
+      
       let notifications = JSON.parse(localStorage.getItem('skinshipNotifications') || '[]');
       const notification = {
         id: Date.now(),
@@ -585,7 +585,7 @@
       localStorage.setItem('skinshipNotifications', JSON.stringify(notifications));
 
       try {
-        // Save to Firebase
+        
         const newData = {
           name,
           email,
@@ -607,14 +607,14 @@
         batch.set(apptRef, { ...newData, customerRef: custRef.id });
         await batch.commit();
 
-        // Send email via EmailJS
+        
         const emailSent = await sendEmail(appointmentData);
         
         if (!emailSent) {
           console.warn('Email notification failed, but appointment was saved.');
         }
 
-        // Show success modal
+        
         showSuccessModal();
         e.target.reset();
       } catch (err) {
