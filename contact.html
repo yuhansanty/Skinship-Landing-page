@@ -99,6 +99,147 @@
   font-weight: 500;
   color: var(--dark-pink);
 }
+
+/* Flatpickr unavailable time styling */
+.flatpickr-time input.unavailable {
+  background-color: #ffcccc !important;
+  color: #cc0000 !important;
+  border: 1px solid #ff9999 !important;
+}
+
+.flatpickr-calendar {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Toast Notification Styles */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toast {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transform: translateX(450px);
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 0;
+  border-left: 4px solid;
+}
+
+.toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast.error {
+  border-left-color: #ef4444;
+}
+
+.toast.success {
+  border-left-color: #22c55e;
+}
+
+.toast.warning {
+  border-left-color: #f59e0b;
+}
+
+.toast.info {
+  border-left-color: #3b82f6;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+}
+
+.toast.error .toast-icon {
+  background: #ef4444;
+}
+
+.toast.success .toast-icon {
+  background: #22c55e;
+}
+
+.toast.warning .toast-icon {
+  background: #f59e0b;
+}
+
+.toast.info .toast-icon {
+  background: #3b82f6;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.toast-message {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.toast-close:hover {
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  .toast-container {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+  
+  .toast {
+    transform: translateY(-100px);
+  }
+  
+  .toast.show {
+    transform: translateY(0);
+  }
+}
     
     .selected-services {
       display: flex;
@@ -283,7 +424,7 @@
       display: inline-block;
       transition: background 0.2s, font-size 0.2s, padding 0.2s;
     }
-    a[href="index.html"] {
+    a[href="index.html"]  {
       position: static !important;
       top: auto !important;
       left: auto !important;
@@ -293,7 +434,7 @@
       z-index: auto !important;
     }
     @media (max-width: 600px) {
-      a[href="index.html"] {
+    a[href="index.html"]  {
         position: static;
         display: block;
         width: fit-content;
@@ -357,6 +498,8 @@
     </div>
   </section>
 
+  <!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
   <!-- Success Modal -->
   <div id="successModal" class="success-modal">
     <div class="success-modal-content">
@@ -389,6 +532,38 @@
       emailjs.init("05pESgFVX7W6C_9dz");
     })();
 
+    // Toast Notification Function
+function showToast(title, message, type = 'error', duration = 5000) {
+  const container = document.getElementById('toastContainer');
+  
+  const icons = {
+    error: '✕',
+    success: '✓',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">${icons[type]}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
     // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyD2Yh7L4Wl9XRlOgxnzZyo8xxds6a02UJY",
@@ -401,7 +576,49 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Initialize Flatpickr with custom date/time format
+// Store unavailable time slots
+let unavailableSlots = [];
+
+// Function to load unavailable time slots
+async function loadUnavailableSlots() {
+  try {
+    const snapshot = await db.collection("appointments")
+      .where("status", "in", ["Pending", "Confirmed"])
+      .get();
+    
+    unavailableSlots = [];
+    snapshot.forEach(doc => {
+      const appt = doc.data();
+      if (appt.date && appt.time && appt.staff) {
+        // Parse the time to get start and add 2 hours
+        const timeMatch = appt.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (timeMatch) {
+          let startHours = parseInt(timeMatch[1]);
+          const startMinutes = parseInt(timeMatch[2]);
+          const period = timeMatch[3].toUpperCase();
+          
+          // Convert to 24-hour format
+          if (period === 'PM' && startHours !== 12) startHours += 12;
+          if (period === 'AM' && startHours === 12) startHours = 0;
+          
+          const startTime = startHours * 60 + startMinutes;
+          const endTime = startTime + 120; // 2 hours later
+          
+          unavailableSlots.push({
+            date: appt.date,
+            staff: appt.staff,
+            startTime: startTime,
+            endTime: endTime
+          });
+        }
+      }
+    });
+  } catch (err) {
+    console.error("Error loading unavailable slots: ", err);
+  }
+}
+
+// Initialize Flatpickr with custom styling for unavailable times
 flatpickr("#appointment", {
   enableTime: true,
   dateFormat: "Y-m-d H:i",
@@ -413,8 +630,55 @@ flatpickr("#appointment", {
     function(date) {
       return date.getDay() === 3;
     }
-  ]
+  ],
+  onOpen: async function() {
+    await loadUnavailableSlots();
+  },
+  onChange: function(selectedDates, dateStr, instance) {
+    if (selectedDates.length > 0) {
+      const selectedStaff = document.getElementById("staff").value;
+      
+      // Skip validation if "Let them choose for me" is selected
+      if (selectedStaff === "Let them choose for me" || !selectedStaff) {
+        return;
+      }
+      
+      const selectedDate = selectedDates[0];
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      
+      const selectedHours = selectedDate.getHours();
+      const selectedMinutes = selectedDate.getMinutes();
+      const selectedTimeInMinutes = selectedHours * 60 + selectedMinutes;
+      
+      // Check if this time is unavailable
+      const isUnavailable = unavailableSlots.some(slot => {
+        return slot.date === formattedDate && 
+               slot.staff === selectedStaff &&
+               selectedTimeInMinutes >= slot.startTime && 
+               selectedTimeInMinutes < slot.endTime;
+      });
+      
+      // Add visual indicator for unavailable times
+      const timeInputs = document.querySelectorAll('.flatpickr-time input');
+      timeInputs.forEach(input => {
+        if (isUnavailable) {
+          input.style.backgroundColor = '#ffcccc';
+          input.style.color = '#cc0000';
+        } else {
+          input.style.backgroundColor = '';
+          input.style.color = '';
+        }
+      });
+    }
+  }
 });
+
+// Load unavailable slots on page load
+loadUnavailableSlots();
+
     // Service selection logic
     let selectedServicesArray = [];
     const serviceSelection = document.getElementById('serviceSelection');
@@ -531,26 +795,29 @@ servicesHTML += `
       }
     }
 
-    // Load staff dynamically
-    async function loadStaff() {
-      const staffSelect = document.getElementById("staff");
-      staffSelect.innerHTML = `<option value="">Loading staff...</option>`;
-      try {
-        const snapshot = await db.collection("users").get();
-        if (!snapshot.empty) {
-          staffSelect.innerHTML = `<option value="">Select a staff</option>`;
-          snapshot.forEach(doc => {
-            const staff = doc.data();
-            staffSelect.innerHTML += `<option value="${staff.fullName || "Unnamed"}">${staff.fullName || "Unnamed"}</option>`;
-          });
-        } else {
-          staffSelect.innerHTML = `<option value="">No staff available</option>`;
-        }
-      } catch (err) {
-        console.error("Error loading staff: ", err);
-        staffSelect.innerHTML = `<option value="">Error loading staff</option>`;
-      }
+async function loadStaff() {
+  const staffSelect = document.getElementById("staff");
+  staffSelect.innerHTML = `<option value="">Loading staff...</option>`;
+  try {
+    // Query only available staff (where availability is true)
+    const snapshot = await db.collection("users")
+      .where("availability", "==", true)
+      .get();
+    
+    if (!snapshot.empty) {
+      staffSelect.innerHTML = `<option value="Let them choose for me">Let them choose for me</option>`;
+      snapshot.forEach(doc => {
+        const staff = doc.data();
+        staffSelect.innerHTML += `<option value="${staff.fullName || "Unnamed"}">${staff.fullName || "Unnamed"}</option>`;
+      });
+    } else {
+      staffSelect.innerHTML = `<option value="Let them choose for me">Let them choose for me</option>`;
     }
+  } catch (err) {
+    console.error("Error loading staff: ", err);
+    staffSelect.innerHTML = `<option value="">Error loading staff</option>`;
+  }
+}
     
     loadServices();
     loadStaff();
@@ -702,20 +969,93 @@ servicesHTML += `
         return;
       }
 
+// Check for time slot conflicts
 const dateObj = new Date(appointment);
-
-// Format date as YYYY-MM-DD for calendar compatibility
 const year = dateObj.getFullYear();
 const month = String(dateObj.getMonth() + 1).padStart(2, '0');
 const day = String(dateObj.getDate()).padStart(2, '0');
 const formattedDate = `${year}-${month}-${day}`;
 
-// Format time as HH:MM AM/PM
 const hours = dateObj.getHours();
 const minutes = dateObj.getMinutes();
 const period = hours >= 12 ? 'PM' : 'AM';
 const displayHours = hours % 12 || 12;
 const formattedTime = `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+
+// Skip conflict check if "Let them choose for me" is selected
+if (staff !== "Let them choose for me") {
+  try {
+    // Query appointments with the same date and staff
+    const conflictQuery = await db.collection("appointments")
+      .where("date", "==", formattedDate)
+      .where("staff", "==", staff)
+      .get();
+    
+    // Check if the selected time conflicts with any existing appointment (2-hour window)
+    let hasConflict = false;
+    let conflictDetails = '';
+    
+    conflictQuery.forEach(doc => {
+      const appointmentData = doc.data();
+      const status = appointmentData.status;
+      
+      // Only check Pending or Confirmed appointments
+      if (status === "Pending" || status === "Confirmed") {
+        const existingTime = appointmentData.time;
+        
+        // Parse existing appointment time
+        const existingMatch = existingTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (existingMatch) {
+          let existingHours = parseInt(existingMatch[1]);
+          const existingMinutes = parseInt(existingMatch[2]);
+          const existingPeriod = existingMatch[3].toUpperCase();
+          
+          // Convert to 24-hour format
+          if (existingPeriod === 'PM' && existingHours !== 12) existingHours += 12;
+          if (existingPeriod === 'AM' && existingHours === 12) existingHours = 0;
+          
+          const existingStartMinutes = existingHours * 60 + existingMinutes;
+          const existingEndMinutes = existingStartMinutes + 120; // Exactly 2 hours (120 minutes)
+          
+          // Parse selected time
+          const selectedStartMinutes = hours * 60 + minutes;
+          const selectedEndMinutes = selectedStartMinutes + 120; // Selected time + 2 hours
+        
+          if (selectedStartMinutes < existingEndMinutes && existingStartMinutes < selectedEndMinutes) {
+            hasConflict = true;
+            
+            // Calculate end time for display
+            const endHours24 = Math.floor(existingEndMinutes / 60);
+            const endMinutes = existingEndMinutes % 60;
+            const endPeriod = endHours24 >= 12 ? 'PM' : 'AM';
+            const endHours12 = endHours24 % 12 || 12;
+            const endTimeFormatted = `${String(endHours12).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')} ${endPeriod}`;
+            
+            conflictDetails = `between ${existingTime} and ${endTimeFormatted}`;
+          }
+        }
+      }
+    });
+    
+if (hasConflict) {
+  showToast(
+    'Time Slot Unavailable',
+    `Sorry, ${staff} is unavailable ${conflictDetails} on ${formattedDate}. Each appointment requires a 2-hour time slot. Please select a different time.`,
+    'error',
+    6000
+  );
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Send Message';
+  return;
+}
+  } catch (err) {
+    console.error("Error checking appointment conflicts: ", err);
+    alert("Error checking availability. Please try again.");
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Message';
+    return;
+  }
+}
 
 const appointmentData = {
   name: name,
