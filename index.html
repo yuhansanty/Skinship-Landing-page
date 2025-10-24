@@ -571,10 +571,30 @@
                     <div class="logo">Skinship <span style="color:var(--dark-pink)">Beauty</span></div>
                 </div>
                 <div class="header-contact">
-                    <span class="contact-phone">0992 595 0241</span>
-                    <span class="contact-label"><br>Inquiries / Scheduling</span>
-                    <span class="contact-hours" style="margin-left:40px;">Thursday - Tuesday</span>
-                    <span class="contact-days"><br>10:00 AM - 9:00 PM</span>
+                    <script>
+                        function checkLoginStatus() {
+                            const isLoggedIn = false; // Replace with actual login status check
+                            const loginButton = document.getElementById('loginButton');
+                            const profileIcon = document.getElementById('profileIcon');
+
+                            if (isLoggedIn) {
+                                loginButton.style.display = 'none';
+                                profileIcon.style.display = 'block';
+                            } else {
+                                loginButton.style.display = 'block';
+                                profileIcon.style.display = 'none';
+                            }
+                        }
+
+                        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+                    </script>
+                    <button id="loginButton" class="btn" style="background: var(--primary-pink); color: #fff; border: none;" onclick="window.location.href='login.html'">Log In</button>
+                    <div id="profileIcon" class="profile-icon" style="display: none; position: relative;">
+                        <img src="profile-icon.png" alt="Profile Icon" style="cursor: pointer;" onclick="toggleDropdown()">
+                        <div id="dropdownMenu" style="display: none; position: absolute; top: 100%; right: 0; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <a href="#" onclick="logout()" style="display: block; padding: 10px; text-decoration: none; color: black;">Log Out</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="header-nav">
@@ -1114,5 +1134,16 @@ friends, dami din silang ibang procedures i can't wait to try! Thank you."</p>
       }
     });
   }
+</script>
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function logout() {
+        // Implement logout functionality here
+        alert('Logged out!');
+    }
 </script>
 </body>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skinship Beauty Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #f7d4d0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .register-container {
+      max-width: 1000px;
+      width: 100%;
+      display: flex;
+      gap: 60px;
+      align-items: center;
+      justify-content: space-between;
+      color: #2b2b2b;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-section {
+      max-width: 450px;
+      flex: 1;
+      background: rgba(247, 212, 208, 0.5);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-text {
+      font-weight: 800;
+      color: #000000cc;
+      margin-top: 0;
+      font-size: 2.3rem;
+      letter-spacing: 4px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 6px;
+      user-select: none;
+      display: inline-block;
+    }
+
+    .subtext {
+      font-size: 0.85rem;
+      color: #000000cc;
+      margin-bottom: 25px;
+      user-select: none;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: block;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"] {
+      display: block;
+      width: 100%;
+      padding: 15px 18px;
+      border: 1px solid #b89a96;
+      border-radius: 15px;
+      font-size: 1rem;
+      color: #2b2b2b;
+      background-color: rgba(255, 255, 255, 0.85);
+      outline-offset: 4px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: text;
+    }
+
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder,
+    input[type="text"]::placeholder,
+    input[type="tel"]::placeholder {
+      color: #af9d99cc;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="text"]:focus,
+    input[type="tel"]:focus {
+      border-color: #da5c73;
+      box-shadow: 0 0 10px #e88ea4cc;
+      background-color: #fbe7eb;
+    }
+
+    .checkbox-group {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .checkbox-group label {
+      font-size: 1rem;
+      color: #2b2b2b;
+    }
+
+    .checkbox-group a {
+      text-decoration: none;
+      color: #da5c73;
+    }
+
+    button.register-btn {
+      width: 100%;
+      padding: 14px 0;
+      background-color: #da5c73;
+      border: none;
+      border-radius: 15px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: 1.8px;
+      color: black;
+      cursor: pointer;
+      transition: background-color 0.35s ease;
+      user-select: none;
+    }
+
+    button.register-btn:hover {
+      background-color: #e2798d;
+    }
+
+    button.register-btn:disabled {
+      background-color: #c4a5a8;
+      cursor: not-allowed;
+    }
+
+    button.back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background-color: #da5c73;
+      border: none;
+      border-radius: 15px;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 1.8px;
+      color: black;
+      cursor: pointer;
+      transition: background-color 0.35s ease;
+      user-select: none;
+    }
+
+    button.back-btn:hover {
+      background-color: #e2798d;
+    }
+  </style>
+</head>
+<body>
+  <main class="register-container">
+    <button onclick="window.location.href='index.html'" class="back-btn">Back</button>
+    <section class="form-section" role="main" aria-label="Register Form Section">
+      <h1 class="welcome-text">Create an Account</h1>
+      <p class="subtext">Fill in your details to register</p>
+      <form id="registerForm">
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="first_name">First Name</label>
+            <input id="first_name" name="first_name" type="text" placeholder="First Name" required />
+          </div>
+          <div style="flex: 0.5;">
+            <label for="middle_initial">M.I.</label>
+            <input id="middle_initial" name="middle_initial" type="text" placeholder="M.I." />
+          </div>
+          <div style="flex: 1;">
+            <label for="last_name">Last Name</label>
+            <input id="last_name" name="last_name" type="text" placeholder="Last Name" required />
+          </div>
+        </div>
+
+        <label for="email">Email Address</label>
+        <input id="email" name="email" type="email" placeholder="Email Address" required />
+
+        <label for="phone_number">Phone Number</label>
+        <input id="phone_number" name="phone_number" type="tel" placeholder="Phone Number" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Password" required />
+        <small>Password must be at least 8 characters, include letters and numbers.</small>
+
+        <label for="confirm_password">Confirm Password</label>
+        <input id="confirm_password" name="confirm_password" type="password" placeholder="Confirm Password" required />
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="terms" name="terms" required />
+          <label for="terms">I agree to the <a href="terms.html">Terms & Conditions</a> and <a href="privacy.html">Privacy Policy</a></label>
+        </div>
+
+        <button type="submit" class="register-btn">Sign Up</button>
+        <p>Already have an account? <a href="login.html" style="font-weight: bold; color: #da5c73;">Log in</a></p>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
